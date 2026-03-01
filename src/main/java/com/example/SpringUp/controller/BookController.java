@@ -9,6 +9,7 @@ package com.example.SpringUp.controller;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.function.Function;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,8 +21,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 import com.example.SpringUp.entity.Book;
-import com.example.SpringUp.repository.BookRepository;
+import com.example.SpringUp.service.BookService;
+import com.example.SpringUp.dto.BookCreateDto;
+import com.example.SpringUp.dto.BookResponseDto; 
 
 /**
  *
@@ -31,45 +36,42 @@ import com.example.SpringUp.repository.BookRepository;
 @RequestMapping("/books")
 public class BookController {
 
-    private final BookRepository bookRepository;
+    private final BookService bookService;
 
-    public BookController(BookRepository bookRepository) {
-        this.bookRepository = bookRepository;
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
     }//end of constructor
 
     @GetMapping
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<BookResponseDto> getAllBooks() {
+        return bookService.getAllBooks().stream().map(bookService::mapToResponseDto).toList();
     }//end of getAllBooks
 
     @GetMapping("/{id}")
     public Book getBookById(@PathVariable Long id) {
-        return bookRepository.findById(id).orElseThrow(RuntimeException::new);
+        return bookService.getBookById(id);
     }//end of getBookById
 
     @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody Book book) throws URISyntaxException {
-        Book savedBook = bookRepository.save(book);
-        return ResponseEntity.created(new URI("/books/" + savedBook.getId())).body(savedBook);
+    public ResponseEntity<BookResponseDto> createBook(@Valid @RequestBody BookCreateDto dto) throws URISyntaxException {
+        BookResponseDto bookResponseDto = bookService.createBook(dto);
+        return ResponseEntity.created(new URI("/books/" + bookResponseDto.getId())).body(bookResponseDto);
     }//end of createBook
 
     @PutMapping("/{id}")
     public ResponseEntity<Book> updateBook(@PathVariable Long id, @RequestBody Book bookDetails) {
-        Book book = bookRepository.findById(id).orElse(null);
+        Book book = bookService.updateBook(id, bookDetails);
         if (book != null) {
-            book.setTitle(bookDetails.getTitle());
-            book.setAuthor(bookDetails.getAuthor());
-            Book updatedBook = bookRepository.save(book);
+            Book updatedBook = bookService.updateBook(id, bookDetails);
             return ResponseEntity.ok(updatedBook);
-
         }
         return ResponseEntity.notFound().build();
     }//end of updateBook
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
-        if (bookRepository.existsById(id)) {
-            bookRepository.deleteById(id);
+        if (bookService.getBookById(id) != null) {
+            bookService.deleteBook(id);
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();

@@ -12,8 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.SpringUp.dto.BookCreateDto;
 import com.example.SpringUp.dto.BookResponseDto;
-import com.example.SpringUp.entity.Book;
 import com.example.SpringUp.entity.Author;
+import com.example.SpringUp.entity.Book;
 import com.example.SpringUp.repository.AuthorRepository;
 import com.example.SpringUp.repository.BookRepository;
 /**
@@ -32,8 +32,11 @@ public class BookService {
         this.authorRepository = authorRepository;
     }//end of constructor
 
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<BookResponseDto> getAllBooks() {
+        return bookRepository.findAll()
+                .stream()
+                .map(this::mapToResponseDto)
+                .toList();
     }//end of getAllBooks
 
     public Book getBookById(Long id) {

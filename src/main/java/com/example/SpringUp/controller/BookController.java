@@ -9,7 +9,6 @@ package com.example.SpringUp.controller;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.function.Function;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,12 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
-
+import com.example.SpringUp.dto.BookCreateDto;
+import com.example.SpringUp.dto.BookResponseDto;
 import com.example.SpringUp.entity.Book;
 import com.example.SpringUp.service.BookService;
-import com.example.SpringUp.dto.BookCreateDto;
-import com.example.SpringUp.dto.BookResponseDto; 
+
+import jakarta.validation.Valid; 
 
 /**
  *
@@ -44,7 +43,7 @@ public class BookController {
 
     @GetMapping
     public List<BookResponseDto> getAllBooks() {
-        return bookService.getAllBooks().stream().map(bookService::mapToResponseDto).toList();
+        return bookService.getAllBooks();
     }//end of getAllBooks
 
     @GetMapping("/{id}")

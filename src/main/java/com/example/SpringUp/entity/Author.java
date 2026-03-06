@@ -64,4 +64,12 @@ public class Author {
     public void setBiography(String biography) {
         this.biography = biography;
     }// End of setBiography method
+
+    public List<Book> getBooks() {
+        return books;
+    }// End of getBooks method
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }// End of setBooks method
 }// End of Author class

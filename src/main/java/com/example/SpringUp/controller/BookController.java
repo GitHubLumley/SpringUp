@@ -47,14 +47,14 @@ public class BookController {
     }//end of getAllBooks
 
     @GetMapping("/{id}")
-    public Book getBookById(@PathVariable Long id) {
+    public BookResponseDto getBookById(@PathVariable Long id) {
         return bookService.getBookById(id);
     }//end of getBookById
 
     @PostMapping
     public ResponseEntity<BookResponseDto> createBook(@Valid @RequestBody BookCreateDto dto) throws URISyntaxException {
         BookResponseDto bookResponseDto = bookService.createBook(dto);
-        return ResponseEntity.created(new URI("/books/" + bookResponseDto.getId())).body(bookResponseDto);
+        return ResponseEntity.created(new URI("/books/" + bookResponseDto.id())).body(bookResponseDto);
     }//end of createBook
 
     @PutMapping("/{id}")

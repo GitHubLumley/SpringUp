@@ -6,42 +6,16 @@
 package com.example.SpringUp.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 /**
  *
  * @author gerald
  */
-public class BookCreateDto {
+public record BookCreateDto(
 
     @NotBlank
-    private String title;
+    String title,
 
-    @NotNull
-    private Long authorId;
-
-    public BookCreateDto() {
-    }// End of default constructor
-
-    public BookCreateDto(String title, Long authorId) {
-        this.title = title;
-        this.authorId = authorId;
-    }// End of constructor
-
-    public String getTitle() {
-        return title;
-    }// End of getTitle
-
-    public void setTitle(String title) {
-        this.title = title;
-    }// End of setTitle
-
-    public Long getAuthorId() {
-        return authorId;
-    }// End of getAuthorId
-
-    public void setAuthorId(Long authorId) {
-        this.authorId = authorId;
-    }// End of setAuthorId
-
-}// End of Class
+    Long authorId
+) {
+}

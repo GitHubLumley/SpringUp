@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.SpringUp.dto.AuthorResponseDto;
 import com.example.SpringUp.dto.BookCreateDto;
 import com.example.SpringUp.dto.BookResponseDto;
 import com.example.SpringUp.entity.Author;
@@ -39,27 +40,37 @@ public class BookService {
                 .toList();
     }//end of getAllBooks
 
-    public Book getBookById(Long id) {
-        return bookRepository.findById(id).orElseThrow(RuntimeException::new);
+    public BookResponseDto getBookById(Long id) {
+        Book book = bookRepository.findById(id).orElseThrow(RuntimeException::new);
+        return mapToResponseDto(book);
     }//end of getBookById
 
     public BookResponseDto createBook(BookCreateDto bookCreateDto) {
-        Author author = authorRepository.findById(bookCreateDto.getAuthorId())
-            .orElseThrow(() -> new RuntimeException("Author not found"));
         Book book = new Book();
-        book.setTitle(bookCreateDto.getTitle());
-        book.setAuthor(author);
+        book.setTitle(bookCreateDto.title());
+        if (bookCreateDto.authorId() != null) {
+            Author author = authorRepository.findById(bookCreateDto.authorId())
+                    .orElseThrow(() -> new RuntimeException("Author not found"));
+            book.setAuthor(author);
+        }
         Book savedBook = bookRepository.save(book);
         return mapToResponseDto(savedBook);
     }//end of createBook
 
     private BookResponseDto mapToResponseDto(Book book) {
-        BookResponseDto dto = new BookResponseDto();
-        dto.setId(book.getId());
-        dto.setTitle(book.getTitle());
-        dto.setAuthorId(book.getAuthor().getAuthorId());
-        dto.setAuthorName(book.getAuthor().getName());
-        return dto;
+        Author author = book.getAuthor();
+        AuthorResponseDto authorDto = null;
+        if (author != null) {
+            authorDto = new AuthorResponseDto(
+                author.getAuthorId(),
+                author.getName()
+            );
+        }
+        return new BookResponseDto(
+            book.getId(),
+            book.getTitle(),
+            authorDto
+        );
     }//end of mapToResponseDto
 
     public Book updateBook(Long id, Book bookDetails) {
@@ -70,6 +81,13 @@ public class BookService {
         }
         return null;
     }//end of updateBook
+
+    public Book updateBookAuthor(Long bookId, Long authorId) {
+        Book book = bookRepository.findById(bookId).orElseThrow(() -> new RuntimeException("Book not found"));
+        Author author = authorRepository.findById(authorId).orElseThrow(() -> new RuntimeException("Author not found"));
+        book.setAuthor(author);
+        return bookRepository.save(book);
+    }//end of updateBookAuthor
 
     public void deleteBook(Long id) {
         bookRepository.deleteById(id);
